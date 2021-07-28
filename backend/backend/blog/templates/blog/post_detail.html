@@ -1,0 +1,85 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<article class="media content-section" >
+    
+    <img crossorigin="anonymous" class="rounded-circle article-img" src="{{object.author.profile.image.url}}">
+    
+    <div class="media-body">
+        <div class="article-metadata">
+            <a class="mr-2" href="{% url 'user-posts' object.author.username %}">{{ object.author }}</a>
+            <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+            <a href="{% url 'blog-home' %}" class="btn btn-secondary mb-5 "
+                style="position:absolute;right:0;box-shadow: -2px 10px 12px rgba(0, 0, 0,1);" id="back">Back</a>
+            {% if object.author == user %}
+            <div>
+                <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'post-update' object.id %}">Update</a>
+                <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' object.id %}">Delete</a>
+            </div>
+            {% endif %}
+        </div>
+        
+        <h2 class="article-title" >{{object.title }}</h2>
+        {% if object.image %}    
+        <img class="post-img"  src="{{object.image.url}}">
+        {%endif%}
+        <p class="article-content">{{ object.content }}</p>
+        {% if user.is_authenticated %}
+       <ul style="list-style-type: none; display:inline-flex; margin-left:-7%;  ">      
+           <li  style="margin-right: 5px;"> <form action="{% url 'like_post' object.id %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" , name="post_id" ,value="{{object.id}}"" , class="btn btn-secondary mb-2 btn-sm"><i class="fa fa-angle-up" aria-hidden="true">{{object.total_likes}}</i></button>
+           
+        </form></li>
+        
+       <li>
+         <form action="{% url 'Dislike_post' object.id %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" , name="post_id" ,value= "{{object.id}}" , class="btn btn-secondary btn-sm "><i class="fa fa-angle-down" aria-hidden="true">{{object.total_dislikes}}</i></button>
+        </form>
+        </li>
+        {% else %}
+        <button class="btn btn-danger">{{post.total_likes}}<i class="fa fa-angle-up" aria-hidden="true"></i></button>
+        <button class="btn btn-danger">{{post.total_dislikes}}<i class="fa fa-angle-down" aria-hidden="true"></i></button>
+        
+        {% endif %}
+</ul>
+    
+    <br><br>
+    
+    <hr>
+    <small>{{object.total_comment}} Comments</small><br>
+    <br>
+    <div>
+        {%for comment in post.comment_set.all %}
+        <img class="rounded-circle comment-img" src="{{comment.author.profile.image.url}}">
+        <b>{{comment.author}} </b><small> {{comment.date_posted|timesince}} ago</small>
+        <p>{{comment.comment}}</p><hr>
+        {%endfor%}
+    </div>
+    
+    <div class="content-section"  >
+        {%if user.is_authenticated%}
+        <form method="POST">
+            {%csrf_token%}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4"></legend>
+                {{form|crispy}}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-danger" type="submit">Post</button>
+            </div>
+        </form>
+        {%else %}
+        Log In to comment
+    
+        {%endif%}
+    </div>
+    
+   
+    
+</article>
+
+
+{% endblock content %}

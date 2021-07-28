@@ -1,0 +1,65 @@
+{% extends "blog/base.html" %}
+{% block content %}
+{% for post in posts %}
+<article class="media content-section">
+   <div class="updown">
+    <img class="rounded-circle article-img" src="{{post.author.profile.image.url}}"></div>
+    
+    <div class="media-body">
+        <div class="article-metadata">
+            <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+            <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small> 
+        </div>
+        <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
+        {% if post.image %}
+        <div classs="media">     
+         <img class="post-img" style="border: 1px solid black;" src="{{post.image.url}}">
+         </div>
+         {%endif%}
+        <p class="article-content">{{ post.content }}</p>
+        
+      
+      <small><a href="{% url 'post-detail' post.id %}" style="color:rgb(192, 16, 51)">{{post.total_comment}} Comments</a></small>
+     
+    </div>
+   <div>
+      {% if user.is_authenticated %}
+      <form action="{% url 'like_post' post.pk %}" method="POST">
+         {% csrf_token %}
+         <button type="submit" , name="post_id" ,value={{post.id}} , class="btn btn-secondary mb-2 btn-sm"
+            style='bottom:0'>
+            <i class="fa fa-angle-up" aria-hidden="true"><br>{{post.total_likes}}</i></button>
+      </form>
+   
+      <form action="{% url 'Dislike_post' post.pk %}"  method="POST">
+         {% csrf_token %}
+         <button type="submit" , name="post_id" ,value={{post.id}} , class="btn btn-secondary btn-sm "><i
+               class="fa fa-angle-down" aria-hidden="true"><br>{{post.total_dislikes}}</i></button>
+      </form>
+      {% else %}
+      <button class="btn btn-danger">{{post.total_likes}}<i class="fa fa-angle-up" aria-hidden="true"></i></button>
+      <button class="btn btn-danger">{{post.total_dislikes}}<i class="fa fa-angle-down" aria-hidden="true"></i></button>
+      {% endif %}
+   </div>
+   
+</article>
+{% endfor %}
+{% if is_paginated %}
+  {% if page_obj.has_previous %}
+    <a class="btn btn-outline-danger mb-4" href="?page=1"><b>First</b></a>
+    <a class="btn btn-outline-danger mb-4" href="?page={{page_obj.previous_page_number}}"><b>Previous</b></a>
+  {% endif %}
+  {% for num in page_obj.paginator.page_range %}
+     {% if page_obj.number == num %}
+        <a class="btn btn-danger mb-4" href="?page={{num}}"><b>{{ num }}</b></a>
+     {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3'%} 
+        <a class="btn btn-outline-danger mb-4" href="?page={{num}}"><b>{{ num }}</b></a>
+     {% endif %}
+  {% endfor %}
+  {% if page_obj.has_next %}
+     <a class="btn btn-outline-danger mb-4" href="?page={{page_obj.next_page_number}}"><b>Next</b></a>
+     <a class="btn btn-outline-danger mb-4" href="?page={{page_obj.paginator.num_pages}}"><b>Last</b></a>
+  {% endif %}
+{% endif %}
+{% endblock content %}
+
